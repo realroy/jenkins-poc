@@ -1,0 +1,49 @@
+version: "3"
+services:
+  jenkins-docker:
+    image: docker:dind
+    privileged: true
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    ports:
+      - "2376:2376"
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    networks:
+      jenkins:
+        aliases:
+          - docker
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    networks:
+      - jenkins
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+      - JAVA_OPTS=-Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+      - ./react-router:/var/jenkins_home/workspace/react-router
+      - ./nestjs:/var/jenkins_home/workspace/nestjs
+    depends_on:
+      - jenkins-docker
+
+volumes:
+  jenkins-data:
+
+  jenkins-docker-certs:
+
+networks:
+  jenkins:
+    name: jenkins
+    driver: bridge
