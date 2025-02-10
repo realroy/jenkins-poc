@@ -1,3 +1,6 @@
 [submodule "react-router-v7-poc"]
 	path = react-router-v7-poc
 	url = https://github.com/realroy/react-router-v7-poc
+[submodule "nestjs"]
+	path = nestjs
+	url = file:./nestjs
